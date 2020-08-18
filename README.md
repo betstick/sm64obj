@@ -5,4 +5,4 @@ currently it only can export from SM64 source code to OBJ. No texture/UV support
 
 Only tested on Blender.
 
-SM64 code has to gotten using a legal ROM and the SM64PC/EX compiling process.
+SM64 code has to be gotten using a legal ROM and the SM64PC/EX compiling process.
