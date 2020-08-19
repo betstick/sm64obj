@@ -7,14 +7,11 @@
 # the above definition might be totally wrong. read the code lol.
 
 import sys
-
 filename = (sys.argv[1])
-
 objdefs = []
-
 with open(str(filename),"r") as file:
 	lines = file.readlines()
-	l1 = 0
+	l1 = 0 #line inndex layer 1
 	vi = 0 #vertex index, needed for offsets
 	vg = 0 #vertex group, needed for offsets
 	mg = 0 #merge group, needed for offsets
@@ -26,7 +23,6 @@ with open(str(filename),"r") as file:
 			codestart = (len(lines[l1])) - 13
 			codeend = (len(lines[l1])) - 5
 			mdlcode = (lines[l1][codestart:codeend])
-			
 			objdef = []#create an array 
 			objdef.append(str(mdlcode)) #set first element to be mdlcode
 			objdefs.append(objdef) #throw that into the main array
@@ -63,24 +59,22 @@ with open(str(filename),"r") as file:
 					objdefs[vg-1][1].append(["v"+str(vertdef),vo,vi,vg,(vi-vo+1)])
 				l2 = l2 + 1
 		if(lines[l1].find('gsSPVertex')!=-1):
-			l2 = l1
+			l2 = l1 #+ 1 #increment by one to not immediately end
 			mg = mg + 1
+			l2 = l2 + 1
 			# EG: gsSPVertex(bbh_seg7_vertex_07020500, 6, 0),
 			#index the first comma then move backwords 8 places
 			commaloc = lines[l2].index(",")
 			codestart = commaloc - 8
 			codeend = commaloc - 0
 			mdlcode = (lines[l2][codestart:codeend])
-			while lines[l2].find('};') == -1:
+			
+			while lines[l2].find('gsSPVertex(') == -1:
 				lines[l2] = lines[l2].replace(" ","")#has to be done due to extra iterations
-				if((lines[l2].find("gsSP2Triangles(")!=-1)or(lines[l2].find("gsSP1Triangles(")!=-1)):
+				if(lines[l2].find("gsSP2Triangles(")!=-1):
 					c = 15 #start at 15 to skip the gssp2 nonsense
 					ci = 0 #character index
-					if(lines[l2].find("gsSP2Triangles(")!=-1):
-						chars = ",",",",",",",",",",",",",",')'
-					if(lines[l2].find("gsSP1Triangles(")!=-1):
-						chars = ",",",",",",')'
-					
+					chars = ",",",",",",",",",",",",",",')'
 					mergedefs = []
 					while ci < len(chars):
 						mergedef = ""
@@ -88,19 +82,33 @@ with open(str(filename),"r") as file:
 							mergedef = mergedef + lines[l2][c]
 							c = c + 1
 						mergedefs.append(mergedef)
-						
 						c = c + 1
 						ci = ci + 1
-					o = objdefs[mdli][1][0][4]
+					o = objdefs[mdli][1][0][4] #defines the offset
 					#3 and 7 are flags we don't need right now
 					print("f "+str(int(mergedefs[0])+o)+"// "+str(int(mergedefs[1])+o)+"// "+str(int(mergedefs[2])+o)+"//")
 					print("f "+str(int(mergedefs[4])+o)+"// "+str(int(mergedefs[5])+o)+"// "+str(int(mergedefs[6])+o)+"//")
+					
+				if(lines[l2].find("gsSP1Triangle")!=-1):
+					c = 14 #start at 14 to skip the gssp1 nonsense
+					ci = 0 #character index
+					chars = ",",",",",",')'
+					mergedefs = []
+					while ci < len(chars):
+						mergedef = ""
+						while lines[l2][c] != chars[ci]:
+							mergedef = mergedef + lines[l2][c]
+							c = c + 1
+						mergedefs.append(mergedef)
+						c = c + 1
+						ci = ci + 1
+					o = objdefs[mdli][1][0][4] #defines the offset
+					#3 and 7 are flags we don't need right now
+					print("f "+str(int(mergedefs[0])+o)+"// "+str(int(mergedefs[1])+o)+"// "+str(int(mergedefs[2])+o)+"//")
 				l2 = l2 + 1
 			mdli = mdli + 1
 		l1 = l1 + 1
 
-#print(objdefs)
-#print(mergedefs)
 lo1 = (len(objdefs))
 i1 = 0
 while i1 < lo1:
