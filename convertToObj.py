@@ -6,9 +6,13 @@
 # objdefs->objdef->[mdlcode,vertdef,vo,vi,vg]
 # the above definition might be totally wrong. read the code lol.
 
+import sys
+
+filename = (sys.argv[1])
+
 objdefs = []
 
-with open("example4.c","r") as file:
+with open(str(filename),"r") as file:
 	lines = file.readlines()
 	l1 = 0
 	vi = 0 #vertex index, needed for offsets
@@ -67,17 +71,16 @@ with open("example4.c","r") as file:
 			codestart = commaloc - 8
 			codeend = commaloc - 0
 			mdlcode = (lines[l2][codestart:codeend])
-			
-			#print(mdlcode)
-			# find the mdl code by indexing the same vg offset
-			#print(objdefs[mg-1])
-			#print(len(objdefs))
 			while lines[l2].find('};') == -1:
 				lines[l2] = lines[l2].replace(" ","")#has to be done due to extra iterations
-				if lines[l2].find("gsSP2Triangles(") !=-1:
+				if((lines[l2].find("gsSP2Triangles(")!=-1)or(lines[l2].find("gsSP1Triangles(")!=-1)):
 					c = 15 #start at 15 to skip the gssp2 nonsense
 					ci = 0 #character index
-					chars = ",",",",",",",",",",",",",",')'
+					if(lines[l2].find("gsSP2Triangles(")!=-1):
+						chars = ",",",",",",",",",",",",",",')'
+					if(lines[l2].find("gsSP1Triangles(")!=-1):
+						chars = ",",",",",",')'
+					
 					mergedefs = []
 					while ci < len(chars):
 						mergedef = ""
@@ -92,19 +95,6 @@ with open("example4.c","r") as file:
 					#3 and 7 are flags we don't need right now
 					print("f "+str(int(mergedefs[0])+o)+"// "+str(int(mergedefs[1])+o)+"// "+str(int(mergedefs[2])+o)+"//")
 					print("f "+str(int(mergedefs[4])+o)+"// "+str(int(mergedefs[5])+o)+"// "+str(int(mergedefs[6])+o)+"//")
-
-					#print(str(mdlcode)+" mdli: "+str(mdli)+" offset: "+str())
-					#print(objdefs.index(str(mdlcode)))
-					#vertcount = (len(objdefs[mg-1][1]))
-					#print("vertcount: "+str(vertcount))
-					#vci = 0
-					#while vci < vertcount:
-					#	print(objdefs[mg-1][1][vci-1])
-					#	vci = vci + 1
-					
-					#print(objdefs[mg-1][1][3]-objdefs[mg-1][1][2])
-					#print(mergedefs[0])
-				
 				l2 = l2 + 1
 			mdli = mdli + 1
 		l1 = l1 + 1
